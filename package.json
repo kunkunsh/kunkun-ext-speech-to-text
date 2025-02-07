@@ -12,7 +12,9 @@
 			"type": "iconify",
 			"value": "arcticons:live-transcribe"
 		},
-		"demoImages": [],
+		"demoImages": [
+			"https://i.imgur.com/wWIM2nA.png"
+		],
 		"permissions": [
 			"event:drag-drop",
 			"clipboard:write-text",
@@ -75,7 +77,7 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"@kksh/api": "0.1.0",
+		"@kksh/api": "0.1.1",
 		"@kksh/svelte5": "0.1.15",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.469.0",

@@ -1,6 +1,6 @@
 <script>
 	import { Alert, Button, ThemeWrapper, Input, Label } from '@kksh/svelte5';
-	import { ui, kv, toast } from '@kksh/api/ui/iframe';
+	import { ui, kv, toast } from '@kksh/api/ui/custom';
 	import { onMount } from 'svelte';
 	let apiKey = $state('');
 

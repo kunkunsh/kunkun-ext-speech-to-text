@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schema.kunkun.sh",
 	"name": "kunkun-ext-speech-to-text",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"license": "MIT",
 	"kunkun": {
 		"name": "Speech to Text",

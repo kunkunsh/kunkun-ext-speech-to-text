@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Button, Input, Label, Textarea, Command, Popover } from '@kksh/svelte5';
-	import { event, fs, dialog, shell, kv, clipboard, toast } from '@kksh/api/ui/custom';
+	import { event, fs, dialog, shell, kv, clipboard, toast, helper } from '@kksh/api/ui/custom';
 	import type { API } from '../../api.types';
 	import { goto } from '$app/navigation';
 
@@ -10,9 +10,12 @@
 	let transcription = $state('');
 	let transcribing = $state(false);
 	let language = $state('en');
-	let languageSelectOpen = $state(false);
+	let hasDeno = $state(false);
 
 	onMount(() => {
+        shell.hasCommand('deno').then((has) => {
+			hasDeno = has;
+		});
 		kv.get('OPENAI_API_KEY').then((key) => {
 			if (!key) {
 				toast.warning('Please enter your OpenAI API key');
@@ -99,34 +102,28 @@
 				transcribing = false;
 			});
 	}
-	let triggerRef = $state<HTMLButtonElement>(null!);
-	function closeAndFocusTrigger() {
-		languageSelectOpen = false;
-		tick().then(() => {
-			triggerRef.focus();
-		});
-	}
 </script>
 
 <main class="container flex flex-col gap-2">
-    <p>Translate audio file to English</p>
-	<Label>Pick an Audio File</Label>
-	<div class="flex gap-1">
-		<Input bind:value={filepath} />
-		<Button onclick={pickFile}>Pick File</Button>
-	</div>
+	{#if hasDeno}
+		<h2 class="text-lg font-bold">Translate audio file to English</h2>
+		<Label>Pick an Audio File</Label>
+		<div class="flex gap-1">
+			<Input bind:value={filepath} />
+			<Button onclick={pickFile}>Pick File</Button>
+		</div>
 
-	<Button disabled={transcribing || !filepath} class="w-full" onclick={transcribe}>
-		Transcribe and Translate
-	</Button>
-	{#if transcribing}
-		<h2 class="text-center">Transcribing...</h2>
-	{:else}
-		<Textarea bind:value={transcription} class="min-h-64 w-full" />
-		<Button
-			class="w-full"
-			disabled={!transcription}
-			onclick={() => {
+		<Button disabled={transcribing || !filepath} class="w-full" onclick={transcribe}>
+			Transcribe and Translate
+		</Button>
+		{#if transcribing}
+			<h2 class="text-center">Transcribing...</h2>
+		{:else}
+			<Textarea bind:value={transcription} class="min-h-64 w-full" />
+			<Button
+				class="w-full"
+				disabled={!transcription}
+				onclick={() => {
 				clipboard
 					.writeText(transcription)
 					.then(() => {
@@ -136,8 +133,14 @@
 						toast.error('Failed to copy to clipboard', { description: err.message });
 					});
 			}}
-		>
-			Copy
-		</Button>
+			>
+				Copy
+			</Button>
+		{/if}
+	{:else}
+		<p>Deno is not installed</p>
+		<Button onclick={() => {
+			helper.guideInstallDeno();
+		}}>Install Deno</Button>
 	{/if}
 </main>

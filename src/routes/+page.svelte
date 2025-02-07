@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Button, Input, Label, Textarea, Command, Popover } from '@kksh/svelte5';
-	import { ui, event, fs, dialog, shell, kv, clipboard, toast } from '@kksh/api/ui/custom';
+	import { event, fs, dialog, shell, kv, clipboard, toast, helper } from '@kksh/api/ui/custom';
 	import type { API } from '../api.types';
 	import { goto } from '$app/navigation';
 	import { languageCodes } from '@/constants';
@@ -14,8 +14,12 @@
 	let transcribing = $state(false);
 	let language = $state('en');
 	let languageSelectOpen = $state(false);
+	let hasDeno = $state(false);
 
 	onMount(() => {
+		shell.hasCommand('deno').then((has) => {
+			hasDeno = has;
+		});
 		kv.get('OPENAI_API_KEY').then((key) => {
 			if (!key) {
 				toast.warning('Please enter your OpenAI API key');
@@ -112,62 +116,64 @@
 </script>
 
 <main class="container flex flex-col gap-2">
-	<Label>Pick an Audio File</Label>
-	<div class="flex gap-1">
-		<Input bind:value={filepath} />
-		<Button onclick={pickFile}>Pick File</Button>
-	</div>
-	<Label>Language</Label>
-	<Popover.Root bind:open={languageSelectOpen}>
-		<Popover.Trigger bind:ref={triggerRef}>
-			{#snippet child({ props }: { props: any })}
-				<Button
-					variant="outline"
-					class="w-[200px] justify-between"
-					{...props}
-					role="combobox"
-					aria-expanded={open}
-				>
-					{languageCodes.find((l) => l.value === language)?.label || 'Select a language...'}
-					<ChevronsUpDown class="opacity-50" />
-				</Button>
-			{/snippet}
-		</Popover.Trigger>
-		<Popover.Content class="w-[200px] p-0">
-			<Command.Root>
-				<Command.Input placeholder="Search framework..." />
-				<Command.List>
-					<Command.Empty>No language found.</Command.Empty>
-					<Command.Group>
-						{#each languageCodes as lang}
-							<Command.Item
-								value={lang.label}
-								onSelect={() => {
+	{#if hasDeno}
+		<h2 class="text-lg font-bold">Transcribe audio file to text</h2>
+		<Label>Pick an Audio File</Label>
+		<div class="flex gap-1">
+			<Input bind:value={filepath} />
+			<Button onclick={pickFile}>Pick File</Button>
+		</div>
+		<Label>Language</Label>
+		<Popover.Root bind:open={languageSelectOpen}>
+			<Popover.Trigger bind:ref={triggerRef}>
+				{#snippet child({ props }: { props: any })}
+					<Button
+						variant="outline"
+						class="w-[200px] justify-between"
+						{...props}
+						role="combobox"
+						aria-expanded={open}
+					>
+						{languageCodes.find((l) => l.value === language)?.label || 'Select a language...'}
+						<ChevronsUpDown class="opacity-50" />
+					</Button>
+				{/snippet}
+			</Popover.Trigger>
+			<Popover.Content class="w-[200px] p-0">
+				<Command.Root>
+					<Command.Input placeholder="Search framework..." />
+					<Command.List>
+						<Command.Empty>No language found.</Command.Empty>
+						<Command.Group>
+							{#each languageCodes as lang}
+								<Command.Item
+									value={lang.label}
+									onSelect={() => {
 									language = lang.value;
 									closeAndFocusTrigger();
 								}}
-							>
-								<Check class={cn(language !== lang.value && 'text-transparent')} />
-								{lang.label}
-							</Command.Item>
-						{/each}
-					</Command.Group>
-				</Command.List>
-			</Command.Root>
-		</Popover.Content>
-	</Popover.Root>
+								>
+									<Check class={cn(language !== lang.value && 'text-transparent')} />
+									{lang.label}
+								</Command.Item>
+							{/each}
+						</Command.Group>
+					</Command.List>
+				</Command.Root>
+			</Popover.Content>
+		</Popover.Root>
 
-	<Button disabled={transcribing || !filepath} class="w-full" onclick={transcribe}>
-		Transcribe
-	</Button>
-	{#if transcribing}
-		<h2 class="text-center">Transcribing...</h2>
-	{:else}
-		<Textarea bind:value={transcription} class="min-h-64 w-full" />
-		<Button
-			class="w-full"
-			disabled={!transcription}
-			onclick={() => {
+		<Button disabled={transcribing || !filepath} class="w-full" onclick={transcribe}>
+			Transcribe
+		</Button>
+		{#if transcribing}
+			<h2 class="text-center">Transcribing...</h2>
+		{:else}
+			<Textarea bind:value={transcription} class="min-h-64 w-full" />
+			<Button
+				class="w-full"
+				disabled={!transcription}
+				onclick={() => {
 				clipboard
 					.writeText(transcription)
 					.then(() => {
@@ -177,8 +183,16 @@
 						toast.error('Failed to copy to clipboard', { description: err.message });
 					});
 			}}
-		>
-			Copy
+			>
+				Copy
+			</Button>
+		{/if}
+	{:else}
+		<p>Deno is not installed</p>
+		<Button onclick={() => {
+			helper.guideInstallDeno();
+		}}>
+		Install Deno
 		</Button>
 	{/if}
 </main>

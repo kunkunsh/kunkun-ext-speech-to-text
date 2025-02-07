@@ -1,6 +1,10 @@
 {
 	"$schema": "https://schema.kunkun.sh",
 	"name": "kunkun-ext-speech-to-text",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kunkunsh/kunkun-ext-speech-to-text"
+	},
 	"version": "0.0.8",
 	"license": "MIT",
 	"kunkun": {

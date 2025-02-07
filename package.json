@@ -1,0 +1,116 @@
+{
+	"$schema": "https://schema.kunkun.sh",
+	"name": "kunkun-ext-speech-to-text",
+	"version": "0.0.7",
+	"license": "MIT",
+	"kunkun": {
+		"name": "Speech to Text",
+		"shortDescription": "Turn audio file into text",
+		"longDescription": "Turn audio file into text",
+		"identifier": "kunkun-ext-speech-to-text",
+		"icon": {
+			"type": "iconify",
+			"value": "arcticons:live-transcribe"
+		},
+		"demoImages": [],
+		"permissions": [
+			"event:drag-drop",
+			"clipboard:write-text",
+			"shell:kill",
+			"shell:stdin-write",
+			{
+				"permission": "shell:deno:spawn",
+				"allow": [
+					{
+						"path": "$EXTENSION/deno-src/index.ts",
+						"env": [
+							"OPENAI_API_KEY",
+							"OPENAI_BASE_URL",
+							"OPENAI_ORG_ID",
+							"OPENAI_PROJECT_ID",
+							"DEBUG"
+						],
+						"read": "*",
+						"net": [
+							"api.openai.com"
+						]
+					}
+				]
+			},
+			{
+				"permission": "fs:exists",
+				"allow": [
+					{
+						"path": "**"
+					}
+				]
+			},
+			"dialog:all"
+		],
+		"customUiCmds": [
+			{
+				"main": "/",
+				"dist": "build",
+				"devMain": "http://localhost:5173",
+				"name": "Speech to Text",
+				"cmds": []
+			},
+			{
+				"main": "preferences",
+				"dist": "build",
+				"devMain": "http://localhost:5173/preferences",
+				"name": "Speech to Text (Preferences)",
+				"cmds": []
+			}
+		],
+		"templateUiCmds": []
+	},
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@kksh/api": "0.1.0",
+		"@kksh/svelte5": "0.1.15",
+		"clsx": "^2.1.1",
+		"lucide-svelte": "^0.469.0",
+		"mode-watcher": "^0.5.0",
+		"openai": "^4.83.0",
+		"tailwind-merge": "^2.6.0",
+		"tailwind-variants": "^0.3.0"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/kit": "^2.15.2",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"svelte": "^5.16.6",
+		"svelte-check": "^4.1.1",
+		"typescript": "^5.7.2",
+		"vite": "^6.0.7",
+		"@sveltejs/adapter-static": "^3.0.8",
+		"@tailwindcss/typography": "^0.5.16",
+		"@types/eslint": "^9.6.1",
+		"autoprefixer": "^10.4.20",
+		"eslint": "^9.17.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.46.1",
+		"globals": "^15.14.0",
+		"postcss": "^8.4.49",
+		"prettier": "^3.4.2",
+		"prettier-plugin-svelte": "^3.3.2",
+		"prettier-plugin-tailwindcss": "^0.6.9",
+		"tailwindcss": "^3.4.17",
+		"typescript-eslint": "^8.19.1"
+	},
+	"type": "module",
+	"files": [
+		"build",
+		".gitignore"
+	],
+	"packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+}
